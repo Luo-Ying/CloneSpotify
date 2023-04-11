@@ -26,6 +26,112 @@ import Ice, IcePy
 _M_SpotifyDuPauvre = Ice.openModule('SpotifyDuPauvre')
 __name__ = 'SpotifyDuPauvre'
 
+if 'Music' not in _M_SpotifyDuPauvre.__dict__:
+    _M_SpotifyDuPauvre.Music = Ice.createTempClass()
+    class Music(object):
+        def __init__(self, title='', artist='', album=''):
+            self.title = title
+            self.artist = artist
+            self.album = album
+
+        def __hash__(self):
+            _h = 0
+            _h = 5 * _h + Ice.getHash(self.title)
+            _h = 5 * _h + Ice.getHash(self.artist)
+            _h = 5 * _h + Ice.getHash(self.album)
+            return _h % 0x7fffffff
+
+        def __compare(self, other):
+            if other is None:
+                return 1
+            elif not isinstance(other, _M_SpotifyDuPauvre.Music):
+                return NotImplemented
+            else:
+                if self.title is None or other.title is None:
+                    if self.title != other.title:
+                        return (-1 if self.title is None else 1)
+                else:
+                    if self.title < other.title:
+                        return -1
+                    elif self.title > other.title:
+                        return 1
+                if self.artist is None or other.artist is None:
+                    if self.artist != other.artist:
+                        return (-1 if self.artist is None else 1)
+                else:
+                    if self.artist < other.artist:
+                        return -1
+                    elif self.artist > other.artist:
+                        return 1
+                if self.album is None or other.album is None:
+                    if self.album != other.album:
+                        return (-1 if self.album is None else 1)
+                else:
+                    if self.album < other.album:
+                        return -1
+                    elif self.album > other.album:
+                        return 1
+                return 0
+
+        def __lt__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r < 0
+
+        def __le__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r <= 0
+
+        def __gt__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r > 0
+
+        def __ge__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r >= 0
+
+        def __eq__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r == 0
+
+        def __ne__(self, other):
+            r = self.__compare(other)
+            if r is NotImplemented:
+                return r
+            else:
+                return r != 0
+
+        def __str__(self):
+            return IcePy.stringify(self, _M_SpotifyDuPauvre._t_Music)
+
+        __repr__ = __str__
+
+    _M_SpotifyDuPauvre._t_Music = IcePy.defineStruct('::SpotifyDuPauvre::Music', Music, (), (
+        ('title', (), IcePy._t_string),
+        ('artist', (), IcePy._t_string),
+        ('album', (), IcePy._t_string)
+    ))
+
+    _M_SpotifyDuPauvre.Music = Music
+    del Music
+
+if '_t_musicResults' not in _M_SpotifyDuPauvre.__dict__:
+    _M_SpotifyDuPauvre._t_musicResults = IcePy.defineSequence('::SpotifyDuPauvre::musicResults', (), _M_SpotifyDuPauvre._t_Music)
+
 if '_t_byteList' not in _M_SpotifyDuPauvre.__dict__:
     _M_SpotifyDuPauvre._t_byteList = IcePy.defineSequence('::SpotifyDuPauvre::byteList', (), IcePy._t_byte)
 
@@ -122,14 +228,14 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
         def end_deleteMusicByTitle(self, _r):
             return _M_SpotifyDuPauvre.Server._op_deleteMusicByTitle.end(self, _r)
 
-        def searchMusic(self, titleMusic, context=None):
-            return _M_SpotifyDuPauvre.Server._op_searchMusic.invoke(self, ((titleMusic, ), context))
+        def searchMusic(self, str, context=None):
+            return _M_SpotifyDuPauvre.Server._op_searchMusic.invoke(self, ((str, ), context))
 
-        def searchMusicAsync(self, titleMusic, context=None):
-            return _M_SpotifyDuPauvre.Server._op_searchMusic.invokeAsync(self, ((titleMusic, ), context))
+        def searchMusicAsync(self, str, context=None):
+            return _M_SpotifyDuPauvre.Server._op_searchMusic.invokeAsync(self, ((str, ), context))
 
-        def begin_searchMusic(self, titleMusic, _response=None, _ex=None, _sent=None, context=None):
-            return _M_SpotifyDuPauvre.Server._op_searchMusic.begin(self, ((titleMusic, ), _response, _ex, _sent, context))
+        def begin_searchMusic(self, str, _response=None, _ex=None, _sent=None, context=None):
+            return _M_SpotifyDuPauvre.Server._op_searchMusic.begin(self, ((str, ), _response, _ex, _sent, context))
 
         def end_searchMusic(self, _r):
             return _M_SpotifyDuPauvre.Server._op_searchMusic.end(self, _r)
@@ -208,7 +314,7 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
         def deleteMusicByTitle(self, titleMusic, current=None):
             raise NotImplementedError("servant method 'deleteMusicByTitle' not implemented")
 
-        def searchMusic(self, titleMusic, current=None):
+        def searchMusic(self, str, current=None):
             raise NotImplementedError("servant method 'searchMusic' not implemented")
 
         def updateMusicChangeTitle(self, titleCurrent, newTitle, current=None):
@@ -232,7 +338,7 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
     Server._op_uploadFileAndInsertMusic = IcePy.Operation('uploadFileAndInsertMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
     Server._op_addMusic = IcePy.Operation('addMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
     Server._op_deleteMusicByTitle = IcePy.Operation('deleteMusicByTitle', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
-    Server._op_searchMusic = IcePy.Operation('searchMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
+    Server._op_searchMusic = IcePy.Operation('searchMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), _M_SpotifyDuPauvre._t_musicResults, False, 0), ())
     Server._op_updateMusicChangeTitle = IcePy.Operation('updateMusicChangeTitle', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0), ((), IcePy._t_string, False, 0)), (), None, ())
     Server._op_getAllMusics = IcePy.Operation('getAllMusics', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), _M_SpotifyDuPauvre._t_musicList, False, 0), ())
 

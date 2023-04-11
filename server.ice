@@ -1,8 +1,14 @@
 module SpotifyDuPauvre
 {
 
+    struct Music {
+        string title;
+        string artist;
+        string album;
+    };
+
+    sequence<Music> musicResults;
 	sequence<byte> byteList;
-    // string uploadingFile;
     sequence<string> musicList;
 
     interface Server
@@ -14,7 +20,7 @@ module SpotifyDuPauvre
 		bool uploadFileAndInsertMusic(string filename);
         void addMusic(string musicData);
         void deleteMusicByTitle(string titleMusic);
-        void searchMusic(string titleMusic);
+        musicResults searchMusic(string str);
         void updateMusicChangeTitle(string titleCurrent, string newTitle);
         musicList getAllMusics();
         // bool updateMusic(string musicName);

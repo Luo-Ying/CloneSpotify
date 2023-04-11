@@ -59,6 +59,15 @@ class Client:
     def modifMusicTitle(self, app, titleCurrent:str, newTitle:str):
         app.updateMusicChangeTitle(titleCurrent, newTitle)
 
+    def searchMusic(self, app, strMusic):
+        musicResults = app.searchMusic(strMusic)
+        for result in musicResults:
+            print("\n")
+            print(colored(result.title, attrs=['bold']))
+            print("artiste : " + result.artist)
+            print("album : " + result.album)
+            print("\n")
+
  
 with Ice.initialize(sys.argv) as communicator:
     base = communicator.stringToProxy("SpotifyDuPauvre:default -p 10000")
@@ -114,6 +123,7 @@ with Ice.initialize(sys.argv) as communicator:
 
         elif command == "upload":
             path = input("\033[34mEnter the path of a music: ")
+            filename = os.path.basename(path)
             client.uploadMusic(app, path)
             client.getAllMusics(app)
 
@@ -129,8 +139,9 @@ with Ice.initialize(sys.argv) as communicator:
             print(newtitle)
             if (int(num) < len(client.listMusics)): client.modifMusicTitle(app, client.listMusics[int(num)], newtitle)
 
-        # elif command == "search":
-
+        elif command == "search":
+            strMusic = input("\033[34mEnter your string to search: \033[0m")
+            client.searchMusic(app, strMusic)
 
 
         else:

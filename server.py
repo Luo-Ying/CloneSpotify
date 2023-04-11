@@ -5,6 +5,12 @@ import json
 import os
 import vlc
 from mutagen.mp3 import MP3
+
+# class Music:
+#     def __init__(self, title, artist, album):
+#         self.title = title
+#         self.artist = artist
+#         self.album = album
  
 class Server(SpotifyDuPauvre.Server):
 
@@ -104,12 +110,20 @@ class Server(SpotifyDuPauvre.Server):
             listMusic.append(data['title'])
         return listMusic
 
-    def searchMusic(self, titleMusic:str, current:None):
-        result = self.collection.find_one({"title": titleMusic})
-        print(result)
+    def searchMusic(self, str:str, current:None):
+        results = self.collection.find({"title": str})
+        print(results)
+        musicResults = []
+        for result in results:
+            musicResult = SpotifyDuPauvre.Music(result['title'], result['artist'], result['album'])
+            musicResults.append(musicResult)
+        # if results != None: return results
+        # else: return "No such item"
+        return musicResults
 
     def updateMusicChangeTitle(self, titleCurrent:str, newTitle:str, current=None):
         result = self.collection.update_one({"title": titleCurrent}, {"$set": {"title": newTitle}})
+
  
 with Ice.initialize(sys.argv) as communicator:
     adapter = communicator.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10000")
