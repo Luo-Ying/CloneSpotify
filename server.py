@@ -112,7 +112,11 @@ class Server(SpotifyDuPauvre.Server):
 
     def searchMusic(self, str:str, current:None):
         results = self.collection.find({"title": str})
-        print(results)
+        # print(len(list(results)))
+        if (len(list(results)) == 0): results = self.collection.find({"artist": str})
+        # print(len(list(results)))
+        if (len(list(results)) == 0): results = self.collection.find({"album": str})
+        # print(len(list(results)))
         musicResults = []
         for result in results:
             musicResult = SpotifyDuPauvre.Music(result['title'], result['artist'], result['album'])
