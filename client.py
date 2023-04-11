@@ -8,7 +8,7 @@ class Client:
     def __init__(self) -> None:
         self.vlcInstance = vlc.Instance()
         self.player = self.vlcInstance.media_player_new()
-        self.player.set_mrl("rtsp://192.168.1.128:5000/music")
+        self.player.set_mrl("rtsp://127.0.0.1:8554/")
 
     def uploadMusic(self, app, pathMusicFile):
         print("Path of file received: " + pathMusicFile)
@@ -37,6 +37,9 @@ class Client:
     def play(self):
         self.player.play()
 
+    def stop(self):
+        self.player.stop()
+
  
 with Ice.initialize(sys.argv) as communicator:
     base = communicator.stringToProxy("SpotifyDuPauvre:default -p 10000")
@@ -48,10 +51,26 @@ with Ice.initialize(sys.argv) as communicator:
 
     client = Client()
 
-    client.uploadMusic(app, "/mnt/e/Yingqi/etudes/M1S2/middleware-Spotify_du_pauvre/musicToUpload/房东的猫 - 云烟成雨.mp3")
+    # client.uploadMusic(app, "E:\Yingqi\etudes\M1S2\middleware-Spotify_du_pauvre\musicToUpload\房东的猫 - 云烟成雨.mp3")
 
-    result = app.playMusic("房东的猫 - 云烟成雨")
-    if result == True : client.play()
-    else : print("\033[91mFichier introuvable")
+    while True:
+
+        command = input("\033[92mWaiting a command :\n")
+
+        if command == "play":
+            name = input("\033[92mEnter the name of a music\n")
+            result = app.playMusic(name)
+            if result == True:
+                client.play()
+            else:
+                print("\033[91mFichier introuvable")
+
+        elif command == "stop":
+            client.stop()
+            app.stopMusic()
+
+    # result = app.playMusic("房东的猫 - 云烟成雨")
+    # if result == True : client.play()
+    # else : print("\033[91mFichier introuvable")
         
 

@@ -29,7 +29,8 @@ class Server(SpotifyDuPauvre.Server):
         if os.path.exists(file) != True : return False
         media = self.player.media_new(file)
 
-        media.add_option("sout=#rtp{mux=ts,ttl=10,port=5000,sdp=rtsp://192.168.1.128:5000/music}")
+        media.add_option(":sout=#transcode{vcodec=h264,acodec=mpga,ab=128,channels=2,samplerate=44100,scodec=none}:rtp{sdp=rtsp://127.0.0.1:8554/}")
+        # media.add_option("rtp{sdp=rtsp://127.0.0.1:8554/}")
         media.add_option("--no-sout-all")
         media.add_option("--sout-keep")
         media.get_mrl()
@@ -38,6 +39,9 @@ class Server(SpotifyDuPauvre.Server):
         self.media_player.set_media(media)
         self.media_player.play()
         return True
+
+    def stopMusic(self, current=None):
+        self.media_player.stop()
        
     def uploadPart(self, part, current=None):
         # if id not in self.uploadingFile : self.uploadingFile[id] = b""

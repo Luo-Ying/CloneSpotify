@@ -9,6 +9,7 @@ module SpotifyDuPauvre
         void helloWorld(string helloWorld);
 		// int getNewIndex();
         bool playMusic(string filename);
+        void stopMusic();
 		bool uploadPart(byteList part);
 		bool uploadFileAndInsertMusic(string filename);
         void addMusic(string musicData);
