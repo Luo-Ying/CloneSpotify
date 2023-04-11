@@ -49,10 +49,15 @@ class Client:
 
     def getAllMusics(self, app):
         self.listMusics = app.getAllMusics()
-        # print(listMusics)
-        print("\n" + colored("List of musics", attrs=['bold']) + ": \n")
+        self.showListMusics()
+
+    def showListMusics(self):
+        print("\n\033[37m" + colored("List of musics", attrs=['bold']) + ": \033[0m\n")
         for i in range(0, len(self.listMusics)):
             print(str(i) + " - " + self.listMusics[i] + "\n")
+
+    def modifMusicTitle(self, app, titleCurrent:str, newTitle:str):
+        app.updateMusicChangeTitle(titleCurrent, newTitle)
 
  
 with Ice.initialize(sys.argv) as communicator:
@@ -110,14 +115,25 @@ with Ice.initialize(sys.argv) as communicator:
         elif command == "upload":
             path = input("\033[34mEnter the path of a music: ")
             client.uploadMusic(app, path)
+            client.getAllMusics(app)
 
         elif command == "show":
-            client.getAllMusics(app)
+            client.showListMusics()
+
+        elif command == "modify":
+            print("\n\033[37m " + colored("Choose one music for the operation (num of music)", attrs=['bold']) + " : \033[0m\n")
+            for i in range(0, len(client.listMusics)):
+                print(str(i) + " - " + client.listMusics[i] + "\n")
+            num = input("\033[34m\033[0m\n")
+            newtitle = input("\033[34mEnter a new title: \033[0m")
+            print(newtitle)
+            if (int(num) < len(client.listMusics)): client.modifMusicTitle(app, client.listMusics[int(num)], newtitle)
+
+        # elif command == "search":
+
+
 
         else:
             print("\033[31mNo such command")
-    # result = app.playMusic("房东的猫 - 云烟成雨")
-    # if result == True : client.play()
-    # else : print("\033[91mFichier introuvable")
         
 

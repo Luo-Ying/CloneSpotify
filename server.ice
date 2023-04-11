@@ -17,5 +17,6 @@ module SpotifyDuPauvre
         void searchMusic(string titleMusic);
         void updateMusicChangeTitle(string titleCurrent, string newTitle);
         musicList getAllMusics();
+        // bool updateMusic(string musicName);
     }
 }

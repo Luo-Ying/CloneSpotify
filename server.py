@@ -57,10 +57,10 @@ class Server(SpotifyDuPauvre.Server):
         file.close()
         print(file)
         audio = MP3("musics/" + filename)
-        artist = audio['TPE1'].text[0] if 'TPE1' in audio else None
-        title = audio['TIT2'].text[0] if 'TIT2' in audio else None
+        artist = audio['TPE1'].text[0] if 'TPE1' in audio else "unknow"
+        title = audio['TIT2'].text[0] if 'TIT2' in audio else "unknow"
         # title = filename
-        album = audio['TALB'].text[0] if 'TALB' in audio else None
+        album = audio['TALB'].text[0] if 'TALB' in audio else "unknow"
         print("file infos: " , title, album, artist)
         musicData = '{"title": "' + title + '", "artist": "' + artist + '", "album": "' + album + '", "filename": "' + filename + '", "url": ' + '"E://Yingqi/etudes/M1S2/middleware-Spotify_du_pauvre/musics/' + filename + '"}'
         dataToInsert = json.loads(musicData)
