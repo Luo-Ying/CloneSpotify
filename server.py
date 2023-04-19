@@ -19,6 +19,7 @@ class Server(SpotifyDuPauvre.Server):
     collection = db["test"]
     
     def __init__(self):
+        self.ipv4 = "192.168.1.128"
         self.uploadingFile = b""
         self.player = vlc.Instance()
         self.media_player = self.player.media_player_new()
@@ -36,7 +37,7 @@ class Server(SpotifyDuPauvre.Server):
         if os.path.exists(file) != True : return False
         media = self.player.media_new(file)
 
-        media.add_option(":sout=#transcode{vcodec=h264,acodec=mpga,ab=128,channels=2,samplerate=44100,scodec=none}:rtp{sdp=rtsp://127.0.0.1:8554/}")
+        media.add_option(":sout=#transcode{vcodec=h264,acodec=mpga,ab=128,channels=2,samplerate=44100,scodec=none}:rtp{sdp=rtsp://" + self.ipv4 + "/}")
         media.add_option("--no-sout-all")
         media.add_option("--sout-keep")
         media.get_mrl()
@@ -71,7 +72,7 @@ class Server(SpotifyDuPauvre.Server):
         musicData = '{"title": "' + title + '", "artist": "' + artist + '", "album": "' + album + '", "filename": "' + filename + '", "url": ' + '"E://Yingqi/etudes/M1S2/middleware-Spotify_du_pauvre/musics/' + filename + '"}'
         dataToInsert = json.loads(musicData)
         result = self.collection.insert_one(dataToInsert)
-        # print("result: " + result)
+        print( result)
         print("upload file successfuly! ")
         self.uploadingFile = b""
         return 0
@@ -112,17 +113,12 @@ class Server(SpotifyDuPauvre.Server):
 
     def searchMusic(self, str:str, current:None):
         results = self.collection.find({"title": str})
-        # print(len(list(results)))
         if (len(list(results)) == 0): results = self.collection.find({"artist": str})
-        # print(len(list(results)))
         if (len(list(results)) == 0): results = self.collection.find({"album": str})
-        # print(len(list(results)))
         musicResults = []
         for result in results:
             musicResult = SpotifyDuPauvre.Music(result['title'], result['artist'], result['album'])
             musicResults.append(musicResult)
-        # if results != None: return results
-        # else: return "No such item"
         return musicResults
 
     def updateMusicChangeTitle(self, titleCurrent:str, newTitle:str, current=None):

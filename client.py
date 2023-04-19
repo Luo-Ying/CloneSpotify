@@ -8,9 +8,10 @@ import string
 class Client:
 
     def __init__(self) -> None:
+        self.ipv4 = "192.168.1.128"
         self.vlcInstance = vlc.Instance()
         self.player = self.vlcInstance.media_player_new()
-        self.player.set_mrl("rtsp://127.0.0.1:8554/")
+        self.player.set_mrl("rtsp://" + self.ipv4 + "/")
         self.listMusics = []
 
     def uploadMusic(self, app, pathMusicFile):
@@ -128,7 +129,8 @@ with Ice.initialize(sys.argv) as communicator:
             client.getAllMusics(app)
 
         elif command == "show":
-            client.showListMusics()
+            # client.showListMusics()
+            client.getAllMusics(app)
 
         elif command == "modify":
             print("\n\033[37m " + colored("Choose one music for the operation (num of music)", attrs=['bold']) + " : \033[0m\n")
