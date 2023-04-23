@@ -168,6 +168,18 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
         def end_playMusic(self, _r):
             return _M_SpotifyDuPauvre.Server._op_playMusic.end(self, _r)
 
+        def pauseMusic(self, context=None):
+            return _M_SpotifyDuPauvre.Server._op_pauseMusic.invoke(self, ((), context))
+
+        def pauseMusicAsync(self, context=None):
+            return _M_SpotifyDuPauvre.Server._op_pauseMusic.invokeAsync(self, ((), context))
+
+        def begin_pauseMusic(self, _response=None, _ex=None, _sent=None, context=None):
+            return _M_SpotifyDuPauvre.Server._op_pauseMusic.begin(self, ((), _response, _ex, _sent, context))
+
+        def end_pauseMusic(self, _r):
+            return _M_SpotifyDuPauvre.Server._op_pauseMusic.end(self, _r)
+
         def stopMusic(self, context=None):
             return _M_SpotifyDuPauvre.Server._op_stopMusic.invoke(self, ((), context))
 
@@ -299,6 +311,9 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
         def playMusic(self, filename, current=None):
             raise NotImplementedError("servant method 'playMusic' not implemented")
 
+        def pauseMusic(self, current=None):
+            raise NotImplementedError("servant method 'pauseMusic' not implemented")
+
         def stopMusic(self, current=None):
             raise NotImplementedError("servant method 'stopMusic' not implemented")
 
@@ -333,6 +348,7 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
 
     Server._op_helloWorld = IcePy.Operation('helloWorld', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
     Server._op_playMusic = IcePy.Operation('playMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
+    Server._op_pauseMusic = IcePy.Operation('pauseMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), IcePy._t_bool, False, 0), ())
     Server._op_stopMusic = IcePy.Operation('stopMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), IcePy._t_bool, False, 0), ())
     Server._op_uploadPart = IcePy.Operation('uploadPart', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), _M_SpotifyDuPauvre._t_byteList, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
     Server._op_uploadFileAndInsertMusic = IcePy.Operation('uploadFileAndInsertMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())

@@ -15,6 +15,7 @@ module SpotifyDuPauvre
     {
         void helloWorld(string helloWorld);
         bool playMusic(string filename);
+        bool pauseMusic();
         bool stopMusic();
 		bool uploadPart(byteList part);
 		bool uploadFileAndInsertMusic(string filename);

@@ -5,12 +5,7 @@ import json
 import os
 import vlc
 from mutagen.mp3 import MP3
-
-# class Music:
-#     def __init__(self, title, artist, album):
-#         self.title = title
-#         self.artist = artist
-#         self.album = album
+import IceStorm
  
 class Server(SpotifyDuPauvre.Server):
 
@@ -18,7 +13,8 @@ class Server(SpotifyDuPauvre.Server):
     db = client["mydb"]
     collection = db["test"]
     
-    def __init__(self):
+    def __init__(self, topic_mgr):
+        self.topic_mgr = topic_mgr
         self.ipv4 = "192.168.1.128"
         self.uploadingFile = b""
         self.player = vlc.Instance()
@@ -27,25 +23,44 @@ class Server(SpotifyDuPauvre.Server):
     def helloWorld(self, helloWorld, current=None):
         print(helloWorld)
 
+    def publishMessage(self, message):
+        topic = self.topic_mgr.retrieve("update")  # 指定 Topic 名称
+        topic.publish(message)
+
     def playMusic(self, musicTitle, current=None):
-        filter = {'title': musicTitle}  # 替换为你的查询条件，如字段名和字段值
+        if(self.media_player.get_state() == vlc.State.Paused):
+            print("music playing....")
+            self.media_player.play()
+            return True
+        
+        else:
+            filter = {'title': musicTitle}  # 替换为你的查询条件，如字段名和字段值
 
-        document = self.collection.find_one(filter)
-        filename = document['filename']
+            document = self.collection.find_one(filter)
+            filename = document['filename']
 
-        file = "musics/" + filename
-        if os.path.exists(file) != True : return False
-        media = self.player.media_new(file)
+            file = "musics/" + filename
+            if os.path.exists(file) != True : return False
+            media = self.player.media_new(file)
 
-        media.add_option(":sout=#transcode{vcodec=h264,acodec=mpga,ab=128,channels=2,samplerate=44100,scodec=none}:rtp{sdp=rtsp://" + self.ipv4 + "/}")
-        media.add_option("--no-sout-all")
-        media.add_option("--sout-keep")
-        media.get_mrl()
+            media.add_option(":sout=#transcode{vcodec=h264,acodec=mpga,ab=128,channels=2,samplerate=44100,scodec=none}:rtp{sdp=rtsp://" + self.ipv4 + "/}")
+            media.add_option("--no-sout-all")
+            media.add_option("--sout-keep")
+            media.add_option("--rtsp-caching=0")
+            media.get_mrl()
 
-        self.media_player = self.player.media_player_new()
-        self.media_player.set_media(media)
-        self.media_player.play()
-        return True
+            self.media_player = self.player.media_player_new()
+            self.media_player.set_media(media)
+            self.media_player.play()
+            return True
+
+    def pauseMusic(self, current=None):
+        if (self.media_player.is_playing()):
+            self.media_player.pause()
+            return True
+        else: 
+            print("There is not music playing...")
+            return False
 
     def stopMusic(self, current=None):
         if (self.media_player.is_playing()):
@@ -127,7 +142,16 @@ class Server(SpotifyDuPauvre.Server):
  
 with Ice.initialize(sys.argv) as communicator:
     adapter = communicator.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10000")
-    object = Server()
+
+    topic_mgr = IceStorm.TopicManagerPrx.checkedCast(
+        communicator.propertyToProxy("TopicManager.Proxy"))
+    if not topic_mgr:
+        raise RuntimeError("Invalid proxy")
+
+    object = Server(topic_mgr)
     adapter.add(object, communicator.stringToIdentity("SpotifyDuPauvre"))
     adapter.activate()
     communicator.waitForShutdown()
+
+    # publisher = Server(topic_mgr)
+    object.publishMessage("Hello, IceStorm!")  # 发布消息

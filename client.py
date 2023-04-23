@@ -4,6 +4,7 @@ import os
 import vlc
 from termcolor import colored
 import string
+import IceStorm
 
 class Client:
 
@@ -38,8 +39,39 @@ class Client:
             app.uploadFileAndInsertMusic(filename)
 
         
-    def play(self):
-        self.player.play()
+    def play(self, app):
+        # self.player.play()
+        if(self.player.get_state() == vlc.State.Paused):
+            # print("music playing....")
+            self.player.play()
+            return True
+        else:
+            value = input("\033[34mEnter the name/num of a music: ")
+            try:
+                num = int(value)
+                # print(num)
+                if(num < len(self.listMusics)): 
+                    result = app.playMusic(self.listMusics[num])
+                    if result == True:
+                        self.player.play()
+                    else:
+                        print("\033[31mNo such music in the database")
+                else:
+                    print("\033[31mNo such music in the list")
+            except ValueError:
+                # print("无法将字符串转换为整数")
+                isMusic = False
+                for item in self.listMusics:
+                    if(''.join(item.split()) ==  ''.join(value.split())): 
+                        result = app.playMusic(item)
+                        if result == True:
+                            isMusic = True
+                            self.player.play()
+                            break
+                if(isMusic == False):print("\033[31mNo such music")
+
+    def pause(self):
+        self.player.pause()
 
     def stop(self):
         self.player.stop()
@@ -90,29 +122,34 @@ with Ice.initialize(sys.argv) as communicator:
         command = input("\033[92mWaiting a command : ")
 
         if command == "play":
-            value = input("\033[34mEnter the name/num of a music: ")
-            try:
-                num = int(value)
-                # print(num)
-                if(num < len(client.listMusics)): 
-                    result = app.playMusic(client.listMusics[num])
-                    if result == True:
-                        client.play()
-                    else:
-                        print("\033[31mNo such music in the database")
-                else:
-                    print("\033[31mNo such music in the list")
-            except ValueError:
-                # print("无法将字符串转换为整数")
-                isMusic = False
-                for item in client.listMusics:
-                    if(''.join(item.split()) ==  ''.join(value.split())): 
-                        result = app.playMusic(item)
-                        if result == True:
-                            isMusic = True
-                            client.play()
-                            break
-                if(isMusic == False):print("\033[31mNo such music")
+            # value = input("\033[34mEnter the name/num of a music: ")
+            # try:
+            #     num = int(value)
+            #     # print(num)
+            #     if(num < len(client.listMusics)): 
+            #         result = app.playMusic(client.listMusics[num])
+            #         if result == True:
+            #             client.play()
+            #         else:
+            #             print("\033[31mNo such music in the database")
+            #     else:
+            #         print("\033[31mNo such music in the list")
+            # except ValueError:
+            #     # print("无法将字符串转换为整数")
+            #     isMusic = False
+            #     for item in client.listMusics:
+            #         if(''.join(item.split()) ==  ''.join(value.split())): 
+            #             result = app.playMusic(item)
+            #             if result == True:
+            #                 isMusic = True
+            #                 client.play()
+            #                 break
+            #     if(isMusic == False):print("\033[31mNo such music")
+            client.play(app)
+
+        elif command == "pause":
+            client.pause()
+            if(app.pauseMusic() == False): print("\033[31mSomething wrong")
 
         elif command == "stop":
             client.stop()
