@@ -1,12 +1,14 @@
 import sys, Ice
-import SpotifyDuPauvre
 import pymongo
 import json
 import os
 import vlc
 from mutagen.mp3 import MP3
 import IceStorm
- 
+
+Ice.loadSlice('server.ice') 
+import SpotifyDuPauvre
+
 class Server(SpotifyDuPauvre.Server):
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")

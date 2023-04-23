@@ -1,10 +1,12 @@
 import sys, Ice
-import SpotifyDuPauvre
 import os
 import vlc
 from termcolor import colored
 import string
 import IceStorm
+
+Ice.loadSlice('server.ice')
+import SpotifyDuPauvre
 
 class Client:
 
@@ -103,7 +105,7 @@ class Client:
             print("\n")
 
  
-with Ice.initialize(sys.argv) as communicator:
+with Ice.initialize(sys.argv, "config.pub") as communicator:
     base = communicator.stringToProxy("SpotifyDuPauvre:default -p 10000")
     app = SpotifyDuPauvre.ServerPrx.checkedCast(base)
     if not app:
