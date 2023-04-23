@@ -156,6 +156,18 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
         def end_helloWorld(self, _r):
             return _M_SpotifyDuPauvre.Server._op_helloWorld.end(self, _r)
 
+        def publishMessage(self, msg, context=None):
+            return _M_SpotifyDuPauvre.Server._op_publishMessage.invoke(self, ((msg, ), context))
+
+        def publishMessageAsync(self, msg, context=None):
+            return _M_SpotifyDuPauvre.Server._op_publishMessage.invokeAsync(self, ((msg, ), context))
+
+        def begin_publishMessage(self, msg, _response=None, _ex=None, _sent=None, context=None):
+            return _M_SpotifyDuPauvre.Server._op_publishMessage.begin(self, ((msg, ), _response, _ex, _sent, context))
+
+        def end_publishMessage(self, _r):
+            return _M_SpotifyDuPauvre.Server._op_publishMessage.end(self, _r)
+
         def playMusic(self, filename, context=None):
             return _M_SpotifyDuPauvre.Server._op_playMusic.invoke(self, ((filename, ), context))
 
@@ -308,6 +320,9 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
         def helloWorld(self, helloWorld, current=None):
             raise NotImplementedError("servant method 'helloWorld' not implemented")
 
+        def publishMessage(self, msg, current=None):
+            raise NotImplementedError("servant method 'publishMessage' not implemented")
+
         def playMusic(self, filename, current=None):
             raise NotImplementedError("servant method 'playMusic' not implemented")
 
@@ -347,6 +362,7 @@ if 'ServerPrx' not in _M_SpotifyDuPauvre.__dict__:
     Server._ice_type = _M_SpotifyDuPauvre._t_ServerDisp
 
     Server._op_helloWorld = IcePy.Operation('helloWorld', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
+    Server._op_publishMessage = IcePy.Operation('publishMessage', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
     Server._op_playMusic = IcePy.Operation('playMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
     Server._op_pauseMusic = IcePy.Operation('pauseMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), IcePy._t_bool, False, 0), ())
     Server._op_stopMusic = IcePy.Operation('stopMusic', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), IcePy._t_bool, False, 0), ())

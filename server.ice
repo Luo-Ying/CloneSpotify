@@ -14,6 +14,7 @@ module SpotifyDuPauvre
     interface Server
     {
         void helloWorld(string helloWorld);
+        void publishMessage(string msg);
         bool playMusic(string filename);
         bool pauseMusic();
         bool stopMusic();

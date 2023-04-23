@@ -13,8 +13,7 @@ class Server(SpotifyDuPauvre.Server):
     db = client["mydb"]
     collection = db["test"]
     
-    def __init__(self, topic_mgr):
-        self.topic_mgr = topic_mgr
+    def __init__(self):
         self.ipv4 = "192.168.1.128"
         self.uploadingFile = b""
         self.player = vlc.Instance()
@@ -24,7 +23,7 @@ class Server(SpotifyDuPauvre.Server):
         print(helloWorld)
 
     def publishMessage(self, message):
-        topic = self.topic_mgr.retrieve("update")  # 指定 Topic 名称
+        topic = self.topic_mgr.retrieve("initial")  # 指定 Topic 名称
         topic.publish(message)
 
     def playMusic(self, musicTitle, current=None):
@@ -142,16 +141,7 @@ class Server(SpotifyDuPauvre.Server):
  
 with Ice.initialize(sys.argv) as communicator:
     adapter = communicator.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10000")
-
-    topic_mgr = IceStorm.TopicManagerPrx.checkedCast(
-        communicator.propertyToProxy("TopicManager.Proxy"))
-    if not topic_mgr:
-        raise RuntimeError("Invalid proxy")
-
-    object = Server(topic_mgr)
+    object = Server()
     adapter.add(object, communicator.stringToIdentity("SpotifyDuPauvre"))
     adapter.activate()
     communicator.waitForShutdown()
-
-    # publisher = Server(topic_mgr)
-    object.publishMessage("Hello, IceStorm!")  # 发布消息

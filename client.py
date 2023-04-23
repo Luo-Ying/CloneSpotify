@@ -14,6 +14,7 @@ class Client:
         self.player = self.vlcInstance.media_player_new()
         self.player.set_mrl("rtsp://" + self.ipv4 + "/")
         self.listMusics = []
+        
 
     def uploadMusic(self, app, pathMusicFile):
         print("Path of file received: " + pathMusicFile)
