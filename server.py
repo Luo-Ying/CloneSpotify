@@ -6,8 +6,9 @@ import vlc
 from mutagen.mp3 import MP3
 import IceStorm
 
-Ice.loadSlice('server.ice') 
 import SpotifyDuPauvre
+Ice.loadSlice('topicManager.ice') 
+import TopicManager
 
 class Server(SpotifyDuPauvre.Server):
 
@@ -141,9 +142,10 @@ class Server(SpotifyDuPauvre.Server):
         result = self.collection.update_one({"title": titleCurrent}, {"$set": {"title": newTitle}})
 
  
-with Ice.initialize(sys.argv) as communicator:
-    adapter = communicator.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10010")
-    object = Server()
-    adapter.add(object, communicator.stringToIdentity("SpotifyDuPauvre"))
-    adapter.activate()
-    communicator.waitForShutdown()
+with Ice.initialize(sys.argv, "config.pub") as communicatorTopic:
+    with Ice.initialize(sys.argv) as communicatorICEServer:
+        adapter = communicatorICEServer.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10010")
+        object = Server()
+        adapter.add(object, communicatorICEServer.stringToIdentity("SpotifyDuPauvre"))
+        adapter.activate()
+        communicatorICEServer.waitForShutdown()
