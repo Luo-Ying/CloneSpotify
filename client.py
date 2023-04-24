@@ -10,7 +10,7 @@ Ice.loadSlice('topicManager.ice')
 import TopicManager
 
 class TopicManager(TopicManager.Notification):
-    def showMessage(message):
+    def showMessage(self, message, current=None):
         print(message)
 
 class Client:
@@ -107,64 +107,118 @@ class Client:
 
  
 with Ice.initialize(sys.argv, "config.pub") as communicatorTopic:
-    with Ice.initialize(sys.argv) as communicatorICEServer:
-        base = communicatorICEServer.stringToProxy("SpotifyDuPauvre:default -p 10010")
-        app = SpotifyDuPauvre.ServerPrx.checkedCast(base)
-        if not app:
-            raise RuntimeError("Invalid proxy")
+    topicName = "communicatorTopic"
+    manager = IceStorm.TopicManagerPrx.checkedCast(communicatorTopic.propertyToProxy('TopicManager.Proxy'))
+    if not manager:
+        print("invalid proxy")
+        sys.exit(1)
 
-        app.helloWorld("Hello World!")
+    #
+    # Retrieve the topic.
+    #
+    try:
+        topic = manager.retrieve(topicName)
+    except IceStorm.NoSuchTopic as e:
+        try:
+            topic = manager.create(topicName)
+        except IceStorm.TopicExists as ex:
+            print(sys.argv[0] + ": temporary error. try again")
+            sys.exit(1)
 
-        client = Client()
+    adapter = communicatorTopic.createObjectAdapterWithEndpoints("topicManager.Subscriber", "tcp")
 
-        client.getAllMusics(app)
+    #
+    # Add a servant for the Ice object. If --id is used the identity
+    # comes from the command line, otherwise a UUID is used.
+    #
+    # id is not directly altered since it is used below to detect
+    # whether subscribeAndGetPublisher can raise AlreadySubscribed.
+    #
 
-        # client.uploadMusic(app, "E:\Yingqi\etudes\M1S2\middleware-Spotify_du_pauvre\musicToUpload\房东的猫 - 云烟成雨.mp3")
-        # client.uploadMusic(app, "E:\Yingqi\etudes\M1S2\middleware-Spotify_du_pauvre\musicToUpload\PianoPanda - Flower Dance（钢琴版I）.mp3")
+    subId = Ice.Identity()
+    subId.name = ""
+    if len(subId.name) == 0:
+        subId.name = Ice.generateUUID()
+    subscriber = adapter.add(TopicManager(), subId)
 
-        while True:
+    #
+    # Activate the object adapter before subscribing.
+    #
+    adapter.activate()
 
-            command = input("\033[92mWaiting a command : ")
+    qos = {}
+    # if len(retryCount) > 0:
+    #     qos["retryCount"] = retryCount
 
-            if command == "play":
-                client.play(app)
+    try:
+        topic.subscribeAndGetPublisher(qos, subscriber)
+        with Ice.initialize(sys.argv) as communicatorICEServer:
+            base = communicatorICEServer.stringToProxy("SpotifyDuPauvre:default -p 10010")
+            app = SpotifyDuPauvre.ServerPrx.checkedCast(base)
+            if not app:
+                raise RuntimeError("Invalid proxy")
 
-            elif command == "pause":
-                client.pause()
-                if(app.pauseMusic() == False): print("\033[31mSomething wrong")
+            app.helloWorld("Hello World!")
 
-            elif command == "stop":
-                client.stop()
-                if(app.stopMusic() == False): print("\033[31mSomething wrong")
+            client = Client()
 
-            elif command == "delete":
-                title = input("\033[34mEnter the " + colored("title", attrs=['bold']) + " of a music: ")
-                client.deleteMusic(app, title)
+            client.getAllMusics(app)
 
-            elif command == "upload":
-                path = input("\033[34mEnter the path of a music: ")
-                filename = os.path.basename(path)
-                client.uploadMusic(app, path)
-                client.getAllMusics(app)
+            # client.uploadMusic(app, "E:\Yingqi\etudes\M1S2\middleware-Spotify_du_pauvre\musicToUpload\房东的猫 - 云烟成雨.mp3")
+            # client.uploadMusic(app, "E:\Yingqi\etudes\M1S2\middleware-Spotify_du_pauvre\musicToUpload\PianoPanda - Flower Dance（钢琴版I）.mp3")
 
-            elif command == "show":
-                client.getAllMusics(app)
+            while True:
 
-            elif command == "modify":
-                print("\n\033[37m " + colored("Choose one music for the operation (num of music)", attrs=['bold']) + " : \033[0m\n")
-                for i in range(0, len(client.listMusics)):
-                    print(str(i) + " - " + client.listMusics[i] + "\n")
-                num = input("\033[34m\033[0m\n")
-                newtitle = input("\033[34mEnter a new title: \033[0m")
-                print(newtitle)
-                if (int(num) < len(client.listMusics)): client.modifMusicTitle(app, client.listMusics[int(num)], newtitle)
+                command = input("\033[92mWaiting a command : ")
 
-            elif command == "search":
-                strMusic = input("\033[34mEnter your string to search: \033[0m")
-                client.searchMusic(app, strMusic)
+                if command == "play":
+                    client.play(app)
+
+                elif command == "pause":
+                    client.pause()
+                    if(app.pauseMusic() == False): print("\033[31mSomething wrong")
+
+                elif command == "stop":
+                    client.stop()
+                    if(app.stopMusic() == False): print("\033[31mSomething wrong")
+
+                elif command == "delete":
+                    title = input("\033[34mEnter the " + colored("title", attrs=['bold']) + " of a music: ")
+                    client.deleteMusic(app, title)
+
+                elif command == "upload":
+                    path = input("\033[34mEnter the path of a music: ")
+                    filename = os.path.basename(path)
+                    client.uploadMusic(app, path)
+                    client.getAllMusics(app)
+
+                elif command == "show":
+                    client.getAllMusics(app)
+
+                elif command == "modify":
+                    print("\n\033[37m " + colored("Choose one music for the operation (num of music)", attrs=['bold']) + " : \033[0m\n")
+                    for i in range(0, len(client.listMusics)):
+                        print(str(i) + " - " + client.listMusics[i] + "\n")
+                    num = input("\033[34m\033[0m\n")
+                    newtitle = input("\033[34mEnter a new title: \033[0m")
+                    print(newtitle)
+                    if (int(num) < len(client.listMusics)): client.modifMusicTitle(app, client.listMusics[int(num)], newtitle)
+
+                elif command == "search":
+                    strMusic = input("\033[34mEnter your string to search: \033[0m")
+                    client.searchMusic(app, strMusic)
 
 
-            else:
-                print("\033[31mNo such command")
-            
+                else:
+                    print("\033[31mNo such command")
+    except IceStorm.AlreadySubscribed:
+        # This should never occur when subscribing with an UUID
+        assert(id)
+        print("reactivating persistent subscriber")
 
+    communicatorTopic.waitForShutdown()
+
+    #
+    # Unsubscribe all subscribed objects.
+    #
+    topic.unsubscribe(subscriber)

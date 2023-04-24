@@ -16,7 +16,8 @@ class Server(SpotifyDuPauvre.Server):
     db = client["mydb"]
     collection = db["test"]
     
-    def __init__(self):
+    def __init__(self, client):
+        self.client = client
         self.ipv4 = "192.168.1.128"
         self.uploadingFile = b""
         self.player = vlc.Instance()
@@ -24,6 +25,7 @@ class Server(SpotifyDuPauvre.Server):
 
     def helloWorld(self, helloWorld, current=None):
         print(helloWorld)
+        self.client.showMessage("Hello IceStorm")
 
     def publishMessage(self, message):
         topic = self.topic_mgr.retrieve("initial")  # 指定 Topic 名称
@@ -92,6 +94,7 @@ class Server(SpotifyDuPauvre.Server):
         print( result)
         print("upload file successfuly! ")
         self.uploadingFile = b""
+        self.client.showMessage("\033[43mHas new music was added in the list, Please refresh the list of musics ! \033[0m")
         return 0
 
     def addMusic(self, dataMusic:str, current=None):
@@ -142,10 +145,40 @@ class Server(SpotifyDuPauvre.Server):
         result = self.collection.update_one({"title": titleCurrent}, {"$set": {"title": newTitle}})
 
  
+# with Ice.initialize(sys.argv) as communicatorICEServer:
+#     adapter = communicatorICEServer.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10010")
+#     object = Server()
+#     adapter.add(object, communicatorICEServer.stringToIdentity("SpotifyDuPauvre"))
+#     adapter.activate()
+#     communicatorICEServer.waitForShutdown()
+
 with Ice.initialize(sys.argv, "config.pub") as communicatorTopic:
-    with Ice.initialize(sys.argv) as communicatorICEServer:
-        adapter = communicatorICEServer.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10010")
-        object = Server()
-        adapter.add(object, communicatorICEServer.stringToIdentity("SpotifyDuPauvre"))
-        adapter.activate()
-        communicatorICEServer.waitForShutdown()
+    topicName = "communicatorTopic"
+    manager = IceStorm.TopicManagerPrx.checkedCast(communicatorTopic.propertyToProxy('TopicManager.Proxy'))
+    if not manager:
+        print("invalid proxy")
+        sys.exit(1)
+    try:
+        topic = manager.retrieve(topicName)
+    except IceStorm.NoSuchTopic:
+        try:
+            topic = manager.create(topicName)
+        except IceStorm.TopicExists:
+            print(sys.argv[0] + ": temporary error. try again")
+            sys.exit(1)
+    publisher = topic.getPublisher()
+    client = TopicManager.NotificationPrx.uncheckedCast(publisher)
+    try:
+        # while 1:
+            with Ice.initialize(sys.argv) as communicatorICEServer:
+                adapter = communicatorTopic.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10010")
+                object = Server(client)
+                adapter.add(object, communicatorTopic.stringToIdentity("SpotifyDuPauvre"))
+                adapter.activate()
+                communicatorICEServer.waitForShutdown()
+    except IOError:
+        # Ignore
+        pass
+    except Ice.CommunicatorDestroyedException:
+        # Ignore
+        pass
