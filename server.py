@@ -142,7 +142,7 @@ class Server(SpotifyDuPauvre.Server):
 
  
 with Ice.initialize(sys.argv) as communicator:
-    adapter = communicator.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10000")
+    adapter = communicator.createObjectAdapterWithEndpoints("SpotifyDuPauvre", "default -p 10010")
     object = Server()
     adapter.add(object, communicator.stringToIdentity("SpotifyDuPauvre"))
     adapter.activate()

@@ -106,7 +106,7 @@ class Client:
 
  
 with Ice.initialize(sys.argv, "config.pub") as communicator:
-    base = communicator.stringToProxy("SpotifyDuPauvre:default -p 10000")
+    base = communicator.stringToProxy("SpotifyDuPauvre:default -p 10010")
     app = SpotifyDuPauvre.ServerPrx.checkedCast(base)
     if not app:
         raise RuntimeError("Invalid proxy")
